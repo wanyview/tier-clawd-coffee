@@ -1,6 +1,8 @@
-# ☕ TIER_Coffee
+# ☕ TIER_Clawd_Coffee
 
-每日咖啡推荐技能 - 根据工作状态自动推荐咖啡
+**大龙虾决定你的品味 | Cloud Decision, Your Taste**
+
+根据每日工作状态，智能推荐专属咖啡
 
 ## 功能
 
