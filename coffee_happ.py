@@ -4,8 +4,12 @@ from flask import Flask, jsonify, render_template_string, request
 from datetime import datetime
 import random
 import json
+import requests
 
 app = Flask(__name__)
+
+# 胶囊API地址
+CAPSULE_API = "http://127.0.0.1:8005"
 
 # 历史记录文件
 HISTORY_FILE = '/tmp/coffee_history.json'
@@ -210,10 +214,14 @@ def recommend(status):
     # 随机选2个品牌推荐
     brand_recs = random.sample(brand_recs, min(2, len(brand_recs))) if brand_recs else []
     
+    # 知识胶囊推荐
+    capsules = get_capsule_recommend("咖啡")
+    
     return {
         "special": specials,
         "brand": brand_recs,
-        "recent": recent[-5:] if recent else []
+        "recent": recent[-5:] if recent else [],
+        "capsules": capsules
     }
 
 HTML = '''<!DOCTYPE html>
@@ -266,6 +274,12 @@ async function getRec(){
         if(json.recent && json.recent.length>0){
             html+='</div><div class="recent">最近喝过: '+json.recent.join(', ')+'</div>';
         }
+        if(json.capsules && json.capsules.length>0){
+            html+='</div><div class="section"><h2>📚 相关知识胶囊</h2>';
+            json.capsules.forEach(c=>{
+                html+=`<div class="item" style="border-left-color:#9b59b6"><div class="name">📚 ${c.title}</div><div class="desc">${c.domain}</div></div>`;
+            });
+        }
         document.getElementById('content').innerHTML=html;
     }catch(e){document.getElementById('content').innerHTML='<p style="color:red">加载失败</p>'}
 }
@@ -289,7 +303,8 @@ def today_recommend():
         },
         "special": recs["special"],
         "brand": recs["brand"],
-        "recent": recs["recent"]
+        "recent": recs["recent"],
+        "capsules": recs["capsules"]
     })
 
 @app.route('/api/coffee/select', methods=['POST'])
@@ -306,6 +321,25 @@ def select_coffee():
 def get_history():
     """获取历史"""
     return jsonify(load_history())
+
+def get_capsule_recommend(keyword="咖啡"):
+    """获取相关知识胶囊推荐"""
+    try:
+        # 搜索相关胶囊
+        resp = requests.get(f"{CAPSULE_API}/capsules", params={"q": keyword}, timeout=3)
+        if resp.status_code == 200:
+            data = resp.json()
+            capsules = data.get("capsules", [])[:3]  # 取3个
+            return [{"title": c.get("title", ""), "domain": c.get("domain", "")} for c in capsules]
+    except:
+        pass
+    return []
+
+@app.route('/api/coffee/capsules')
+def capsule_recommend():
+    """获取咖啡相关胶囊推荐"""
+    capsules = get_capsule_recommend("咖啡")
+    return jsonify({"capsules": capsules})
 
 if __name__ == '__main__':
     app.run(host='0.0.0.0', port=18801, debug=False)
