@@ -324,26 +324,26 @@ def get_history():
 
 def get_capsule_recommend(keyword="咖啡"):
     """获取随机知识胶囊推荐"""
-    try:
-        # 获取胶囊列表
-        resp = requests.get(f"{CAPSULE_API}/capsules", timeout=3)
-        if resp.status_code == 200:
-            data = resp.json()
-            all_capsules = data.get("capsules", [])
-            # 随机选3个
-            if len(all_capsules) >= 3:
-                selected = random.sample(all_capsules, 3)
-            else:
-                selected = all_capsules
-            return [{"title": c.get("title", ""), "domain": c.get("domain", "")} for c in selected]
-    except:
-        pass
-    # 如果API失败，返回随机默认
-    domains = ["技术", "运营", "商业", "管理", "产品", "战略"]
-    return [
-        {"title": f"知识胶囊_{random.randint(1,100)}", "domain": random.choice(domains)}
-        for _ in range(3)
+    # 预定义的优质知识胶囊库 (科学性、科教文卫各领域)
+    premium_capsules = [
+        {"title": "咖啡因代谢机制", "domain": "科学"},
+        {"title": "阿拉比卡 vs 罗布斯塔", "domain": "科学"},
+        {"title": "手冲咖啡最佳水温", "domain": "科教"},
+        {"title": "拿铁艺术拉花技巧", "domain": "科教"},
+        {"title": "咖啡品鉴师标准", "domain": "文化"},
+        {"title": "全球咖啡产区分布", "domain": "地理"},
+        {"title": "咖啡与健康关系", "domain": "医学"},
+        {"title": "意式浓缩萃取原理", "domain": "科学"},
+        {"title": "咖啡豆烘焙曲线", "domain": "技术"},
+        {"title": "咖啡风味轮使用指南", "domain": "科教"},
+        {"title": "水对咖啡的影响", "domain": "科学"},
+        {"title": "咖啡保鲜存储方法", "domain": "生活"},
+        {"title": "早餐咖啡最佳时间", "domain": "健康"},
+        {"title": "咖啡与睡眠质量", "domain": "医学"},
+        {"title": "精品咖啡 sca 标准", "domain": "标准"}
     ]
+    # 随机选3个
+    return random.sample(premium_capsules, 3)
 
 @app.route('/api/coffee/capsules')
 def capsule_recommend():
