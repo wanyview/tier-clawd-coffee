@@ -323,17 +323,27 @@ def get_history():
     return jsonify(load_history())
 
 def get_capsule_recommend(keyword="咖啡"):
-    """获取相关知识胶囊推荐"""
+    """获取随机知识胶囊推荐"""
     try:
-        # 搜索相关胶囊
-        resp = requests.get(f"{CAPSULE_API}/capsules", params={"q": keyword}, timeout=3)
+        # 获取胶囊列表
+        resp = requests.get(f"{CAPSULE_API}/capsules", timeout=3)
         if resp.status_code == 200:
             data = resp.json()
-            capsules = data.get("capsules", [])[:3]  # 取3个
-            return [{"title": c.get("title", ""), "domain": c.get("domain", "")} for c in capsules]
+            all_capsules = data.get("capsules", [])
+            # 随机选3个
+            if len(all_capsules) >= 3:
+                selected = random.sample(all_capsules, 3)
+            else:
+                selected = all_capsules
+            return [{"title": c.get("title", ""), "domain": c.get("domain", "")} for c in selected]
     except:
         pass
-    return []
+    # 如果API失败，返回随机默认
+    domains = ["技术", "运营", "商业", "管理", "产品", "战略"]
+    return [
+        {"title": f"知识胶囊_{random.randint(1,100)}", "domain": random.choice(domains)}
+        for _ in range(3)
+    ]
 
 @app.route('/api/coffee/capsules')
 def capsule_recommend():
