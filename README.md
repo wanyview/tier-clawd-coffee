@@ -1,6 +1,6 @@
 # ☕ TIER_Clawd_Coffee
 
-**大龙虾决定你的品味 | Cloud Decision, Your Taste**
+**大龙虾决定你的品味 | Clawd Decision, Your Taste**
 
 根据每日工作状态，智能推荐专属咖啡
 
